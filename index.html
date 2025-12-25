@@ -23,10 +23,6 @@
         .color-dot { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; opacity: 0.6; border: 2px solid transparent; transition: 0.2s; }
         .color-dot.selected { border-color: #fff; opacity: 1; transform: scale(1.1); }
 
-        .shimmer { position: relative; overflow: hidden; background: #181818; }
-        .shimmer::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent); background-size: 200% 100%; animation: loading 1.5s infinite; }
-        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
         #calendar-grid { 
             display: grid; 
             flex-grow: 1; 
@@ -36,75 +32,73 @@
             padding-bottom: 20px;
         }
         @media (min-width: 768px) { 
-            #calendar-grid { 
-                grid-template-columns: repeat(7, 1fr); 
-                grid-template-rows: 25px repeat(5, 1fr); 
-            } 
+            #calendar-grid { grid-template-columns: repeat(7, 1fr); grid-template-rows: 25px repeat(5, 1fr); } 
         }
         @media (max-width: 767px) { #calendar-grid { grid-template-columns: 1fr; } }
 
-        .date-cell { background: #181818; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; border: 1px solid transparent; min-height: 100px; }
-        .task-zone { min-height: 60px; }
+        .date-cell { background: #181818; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; border: 1px solid transparent; min-height: 110px; max-height: 150px; overflow: hidden; position: relative; }
+        
+        .task-zone { 
+            flex: 1;
+            overflow-y: auto;
+            margin-top: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .task-zone::-webkit-scrollbar { width: 3px; }
+        .task-zone::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
 
         @media (max-width: 767px) { 
-            .date-cell { min-height: 80px; flex-direction: row; align-items: center; gap: 15px; cursor: pointer; } 
+            .date-cell { min-height: 100px; flex-direction: row; align-items: flex-start; gap: 12px; cursor: pointer; padding: 15px; } 
+            .task-zone { margin-top: 0; width: 100%; height: 100%; }
+            .mobile-hide { display: none !important; }
         }
 
-        .action-btn { 
-            width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-            font-size: 10px; transition: 0.2s; background: rgba(255,255,255,0.1); color: #fff;
-        }
-        .action-btn:hover { background: #1DB954; color: #000; transform: scale(1.1); }
+        .task-item { padding: 4px 8px; border-radius: 6px; min-height: 28px; display: flex; align-items: center; justify-content: space-between; cursor: grab; }
+        .task-item span { font-size: 9px; line-height: 1.2; font-weight: 800; color: #000; pointer-events: none; }
+        .action-btn { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; background: rgba(0,0,0,0.1); color: #000; }
 
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 500; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .btn-spotify { transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .btn-spotify:hover { transform: scale(1.04); background-color: #1ed760; }
+        /* REQ: Hover Green & Enlarge Create Task */
+        .create-task-btn { transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .create-task-btn:hover { background-color: #1DB954 !important; color: black !important; transform: scale(1.05); }
 
-        #trash:hover { border-color: #ef4444; color: #ef4444; background: rgba(239, 68, 68, 0.05); }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
-        
-        /* Update di bagian <style> */
-.task-item {
-    padding: 4px 8px; /* Diperkecil dari sebelumnya */
-    border-radius: 6px;
-    margin-bottom: 4px;
-    min-height: 28px; /* Menjaga tinggi tetap konsisten */
-    transition: all 0.2s ease;
-}
+        /* REQ: Hover Red Drop to Remove */
+        #trash { transition: all 0.3s ease; }
+        #trash:hover { border-color: #ff4444; color: #ff4444; background: rgba(255, 68, 68, 0.05); }
+        #trash.drag-over { border-color: #ff4444; color: #ff4444; background: rgba(255, 68, 68, 0.1); transform: scale(1.02); }
 
-.task-item span {
-    font-size: 9px; /* Ukuran font lebih proporsional untuk tumpukan */
-    line-height: 1.2;
-}
+        /* REQ: Tombol X (Desktop hide, Mobile show) */
+        @media (min-width: 768px) { .btn-delete-task { display: none !important; } }
 
-.action-btn {
-    width: 18px; /* Tombol diperkecil sedikit */
-    height: 18px;
-    font-size: 8px;
-}
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 500; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+        .shimmer { position: relative; overflow: hidden; background: #181818; }
+        .shimmer::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent); background-size: 200% 100%; animation: loading 1.5s infinite; }
+        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
 </head>
 <body>
 
-    <div id="inputModal" class="modal-overlay" onclick="closeInputModal(event)">
+    <div id="inputModal" class="modal-overlay" onclick="closeInputModal()">
         <div class="spotify-card p-6 w-[90%] max-w-[400px]" onclick="event.stopPropagation()">
             <h3 class="text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest">BUAT RENCANA</h3>
-            <input type="text" id="modalTaskInput" placeholder="Judul lagu... eh, tugas?" class="w-full bg-[#2A2A2A] text-white rounded-md p-4 mb-4 outline-none border border-transparent focus:border-green-500">
+            <input type="text" id="modalTaskInput" placeholder="Tulis tugas..." class="w-full bg-[#2A2A2A] text-white rounded-md p-4 mb-4 outline-none border border-transparent focus:border-green-500">
             <div class="flex gap-4 mb-6 justify-center">
                 <div onclick="selectColor('#1DB954', this)" class="color-dot bg-[#1DB954]"></div>
                 <div onclick="selectColor('#509BF5', this)" class="color-dot bg-[#509BF5]"></div>
                 <div onclick="selectColor('#E91E63', this)" class="color-dot bg-[#E91E63]"></div>
                 <div onclick="selectColor('#FFD700', this)" class="color-dot bg-[#FFD700]"></div>
             </div>
-            <button onclick="saveModalTask()" class="w-full py-4 bg-spotify-green text-black font-black rounded-full uppercase tracking-widest text-xs btn-spotify">Simpan</button>
+            <button onclick="saveModalTask()" class="w-full py-4 bg-spotify-green text-black font-black rounded-full uppercase tracking-widest text-xs">Simpan</button>
         </div>
     </div>
 
-    <div id="alertModal" class="modal-overlay">
-        <div class="spotify-card p-8 w-[90%] max-w-[320px] text-center border-2 border-[#1DB954]">
+    <div id="alertModal" class="modal-overlay" onclick="closeAlert()">
+        <div class="spotify-card p-8 w-[90%] max-w-[320px] text-center border-2 border-[#1DB954]" onclick="event.stopPropagation()">
             <p class="text-lg font-bold mb-6">Pilih warna dulu yaa</p>
-            <button onclick="closeAlert()" class="bg-spotify-green text-black font-black py-3 px-8 rounded-full text-xs uppercase tracking-widest btn-spotify">Oke</button>
+            <button onclick="closeAlert()" class="bg-spotify-green text-black font-black py-3 px-8 rounded-full text-xs uppercase tracking-widest">Oke</button>
         </div>
     </div>
 
@@ -115,20 +109,20 @@
                 <p id="digital-date" class="text-[9px] text-gray-500 font-bold uppercase tracking-[0.2em] md:mt-1">MEMUAT...</p>
             </div>
 
-            <div class="spotify-card p-3 flex flex-col gap-2 shrink-0">
+            <div class="mobile-hide spotify-card p-3 flex flex-col gap-2 shrink-0">
                 <div class="relative">
                     <div class="flex gap-2">
                         <input type="text" id="spotifyUrlInput" placeholder="Library or Link..." onfocus="showSuggestions()" onblur="hideSuggestions()" class="flex-1 bg-[#2A2A2A] text-[10px] p-2.5 rounded outline-none border border-transparent focus:border-green-500 transition text-white">
-                        <button onclick="changeSpotify()" class="bg-spotify-green text-black text-[10px] font-black px-3 rounded uppercase btn-spotify">Set</button>
+                        <button onclick="changeSpotify()" class="bg-spotify-green text-black text-[10px] font-black px-3 rounded uppercase">Set</button>
                     </div>
-                    <div id="spotify-suggestions" class="spotify-card absolute top-full left-0 right-0 z-[100] mt-2 hidden overflow-hidden border border-gray-800"></div>
+                    <div id="spotify-suggestions" class="spotify-card absolute top-full left-0 right-0 z-[100] mt-2 hidden overflow-hidden border border-gray-800 max-h-[150px] overflow-y-auto"></div>
                 </div>
-                <div id="player-container" class="shimmer rounded-[12px] overflow-hidden h-[80px] md:h-[152px]">
-                    <iframe id="spotify-player" src="" width="100%" height="100%" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" onload="removeShimmer()"></iframe>
+                <div id="player-container" class="shimmer rounded-[12px] overflow-hidden h-[152px]">
+                    <iframe id="spotify-player" src="" width="100%" height="100%" frameBorder="0" allow="autoplay; encrypted-media; fullscreen;" onload="removeShimmer()"></iframe>
                 </div>
             </div>
 
-            <div class="hidden md:flex spotify-card p-6 flex-col flex-1 min-h-0 overflow-hidden">
+            <div class="mobile-hide hidden md:flex spotify-card p-6 flex-col flex-1 min-h-0 overflow-hidden">
                 <h3 class="text-[10px] font-black text-gray-500 uppercase mb-4 tracking-widest">Editor Rencana</h3>
                 <input type="text" id="taskInput" placeholder="Judul lagu... eh, tugas?" class="bg-[#2A2A2A] text-white rounded-md p-3 mb-4 outline-none border border-transparent focus:border-green-500 text-sm">
                 <div class="flex gap-3 mb-6 justify-center shrink-0">
@@ -137,22 +131,14 @@
                     <div onclick="selectColor('#E91E63', this)" class="color-dot bg-[#E91E63]"></div>
                     <div onclick="selectColor('#FFD700', this)" class="color-dot bg-[#FFD700]"></div>
                 </div>
-                <button onclick="createTask()" class="w-full py-4 bg-white text-black font-black rounded-full text-[11px] uppercase shadow-lg btn-spotify mb-4 shrink-0">Create Task</button>
-                <div id="inventory" class="flex flex-col gap-1 overflow-y-auto flex-1 pr-1"></div>
+                <button onclick="createTask()" class="create-task-btn w-full py-4 bg-white text-black font-black rounded-full text-[11px] uppercase shadow-lg mb-4 shrink-0">Create Task</button>
+                <div id="inventory" class="task-zone flex-1" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
             </div>
-
-            <div id="trash" ondrop="deleteTask(event)" ondragover="allowDrop(event)" class="hidden md:block p-4 border border-dashed border-gray-800 rounded-xl text-center text-gray-600 text-[10px] font-bold uppercase transition">
-                🗑️ Drop to Remove
-            </div>
+            <div id="trash" ondrop="deleteTask(event)" ondragover="allowDrop(event)" ondragenter="this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" class="mobile-hide hidden md:block p-4 border border-dashed border-gray-800 rounded-xl text-center text-gray-600 text-[10px] font-bold uppercase">🗑️ Drop to Remove</div>
         </aside>
 
-        <main id="main-calendar-area" onwheel="handleDesktopScroll(event)" class="flex-1 spotify-card p-4 md:p-8 flex flex-col shadow-2xl overflow-hidden">
-            <div class="mb-6 shrink-0">
-                <p class="text-spotify-green font-black text-[10px] tracking-widest uppercase opacity-50" id="year-label">2025</p>
-                <div id="month-nav-area">
-                    <h2 id="month-label" class="text-4xl md:text-6xl font-black italic uppercase tracking-tighter leading-none inline-block">MARET</h2>
-                </div>
-            </div>
+        <main id="main-calendar-area" class="flex-1 spotify-card p-4 md:p-8 flex flex-col shadow-2xl overflow-hidden">
+            <div class="mb-6 shrink-0"><p class="text-spotify-green font-black text-[10px] tracking-widest uppercase opacity-50" id="year-label">2025</p><h2 id="month-label" class="text-4xl md:text-6xl font-black italic uppercase tracking-tighter leading-none">MARET</h2></div>
             <div id="calendar-grid"></div>
         </main>
     </div>
@@ -162,67 +148,41 @@
         let currentDate = new Date();
         let currColor = null;
         let selectedDayForModal = null;
-        let playlistDatabase = [];
-        let isScrolling = false;
 
         function initCalendar() {
             const grid = document.getElementById('calendar-grid');
             const months = ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"];
             document.getElementById('month-label').innerText = months[currentDate.getMonth()];
             document.getElementById('year-label').innerText = currentDate.getFullYear();
-            
             grid.innerHTML = '';
+            
             if (window.innerWidth >= 768) {
-                ['SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB', 'MIN'].forEach(h => { 
-                    grid.innerHTML += `<div class="text-center text-[10px] font-black text-gray-800 uppercase flex items-end justify-center pb-1 tracking-widest">${h}</div>`; 
-                });
+                ['SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB', 'MIN'].forEach(h => { grid.innerHTML += `<div class="text-center text-[10px] font-black text-gray-800 uppercase pb-1 tracking-widest">${h}</div>`; });
+                const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
+                const startOffset = (firstDay === 0 ? 6 : firstDay - 1);
+                for(let i=0; i<startOffset; i++) grid.innerHTML += `<div></div>`;
             }
 
-            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
             const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
-            const startOffset = (firstDay === 0 ? 6 : firstDay - 1);
-
-            if (window.innerWidth >= 768) { for(let i=0; i<startOffset; i++) grid.innerHTML += `<div></div>`; }
-
             for(let d=1; d<=daysInMonth; d++) {
-                const dateObj = new Date(currentDate.getFullYear(), currentDate.getMonth(), d);
-                const dayName = dateObj.toLocaleDateString('id-ID', {weekday: 'long'});
-                const clickAction = window.innerWidth < 768 ? `onclick="openInputModal(${d})"` : "";
-                
                 grid.innerHTML += `
-                    <div class="date-cell" data-day="${d}" ${clickAction}>
-                        <div class="flex flex-col">
-                            <span class="text-[11px] md:text-[13px] font-black text-gray-500">${d}</span>
-                            <span class="md:hidden text-[9px] font-bold text-gray-700 uppercase tracking-widest">${dayName}</span>
-                        </div>
-                        <div class="task-zone flex-1 flex flex-col gap-1 md:mt-2" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+                    <div class="date-cell" data-day="${d}" onclick="openInputModal(${d})" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <span class="text-[11px] md:text-[13px] font-black text-gray-500 shrink-0">${d}</span>
+                        <div class="task-zone" onclick="event.stopPropagation()"></div>
                     </div>`;
             }
             loadDataFromSheet();
         }
 
-        // SWIPE LOGIC
-        let touchStartX = 0;
-        let touchEndX = 0;
-        const mainArea = document.getElementById('main-calendar-area');
-        mainArea.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, false);
-        mainArea.addEventListener('touchend', e => { touchEndX = e.changedTouches[0].screenX; handleSwipe(); }, false);
-
-        function handleSwipe() {
-            if (window.innerWidth >= 768) return;
-            const threshold = 50;
-            if (touchStartX - touchEndX > threshold) { currentDate.setMonth(currentDate.getMonth() + 1); initCalendar(); }
-            else if (touchEndX - touchStartX > threshold) { currentDate.setMonth(currentDate.getMonth() - 1); initCalendar(); }
-        }
-
         async function loadDataFromSheet() {
             if (!SCRIPT_URL || SCRIPT_URL.includes("TEMPEL_URL")) return;
-            document.getElementById('player-container').classList.add('shimmer');
             try {
                 const response = await fetch(SCRIPT_URL);
                 const result = await response.json();
+                removeShimmer();
                 document.querySelectorAll('.task-zone').forEach(z => z.innerHTML = '');
-                result.tasks.forEach(item => {
+                const visibleTasks = result.tasks.filter(item => item.status !== "Done");
+                visibleTasks.forEach(item => {
                     const tDate = new Date(item.date);
                     if (tDate.getMonth() === currentDate.getMonth() && tDate.getFullYear() === currentDate.getFullYear()) {
                         const day = tDate.getDate();
@@ -230,127 +190,151 @@
                         if (zone) createTaskElement(item.task, item.color, zone, item.id);
                     }
                 });
-                playlistDatabase = result.playlists || [];
-                const dropdown = document.getElementById('spotify-suggestions');
-                dropdown.innerHTML = '';
-                playlistDatabase.forEach((pl, idx) => {
-                    const div = document.createElement('div');
-                    div.className = 'suggestion-item p-3 text-[10px] font-bold hover:bg-[#222] cursor-pointer border-b border-gray-800';
-                    div.innerText = `🎵 Library Playlist #${idx + 1}`;
-                    div.onmousedown = () => { setSpotifyPlayer(pl.url); document.getElementById('spotifyUrlInput').value = `Playlist #${idx + 1}`; };
-                    dropdown.appendChild(div);
-                });
-                removeShimmer();
-            } catch (e) { removeShimmer(); }
+                
+                if (window.innerWidth >= 768 && result.playlists) {
+                    const dropdown = document.getElementById('spotify-suggestions');
+                    dropdown.innerHTML = '';
+                    result.playlists.forEach((pl, idx) => {
+                        const div = document.createElement('div');
+                        div.className = 'p-3 text-[10px] font-bold hover:bg-[#222] cursor-pointer border-b border-gray-800';
+                        div.innerText = `🎵 Library Playlist #${idx + 1}`;
+                        div.onmousedown = () => { setSpotifyPlayer(pl.url); document.getElementById('spotifyUrlInput').value = `Playlist #${idx + 1}`; };
+                        dropdown.appendChild(div);
+                    });
+                }
+            } catch (e) { console.error(e); }
         }
 
-        function removeShimmer() { document.getElementById('player-container').classList.remove('shimmer'); }
         function setSpotifyPlayer(url) {
-            document.getElementById('player-container').classList.add('shimmer');
-            let embedUrl = url;
-            if (url.includes("spotify.com") && !url.includes("/embed/")) {
-                embedUrl = url.replace("spotify.com/", "spotify.com/embed/");
-            }
-            document.getElementById('spotify-player').src = embedUrl;
-        }
-
-        function handleDesktopScroll(e) {
-            if (window.innerWidth < 768 || isScrolling) return;
-            if (Math.abs(e.deltaY) > 30) {
-                isScrolling = true;
-                currentDate.setMonth(currentDate.getMonth() + (e.deltaY > 0 ? 1 : -1));
-                initCalendar();
-                setTimeout(() => { isScrolling = false; }, 600);
+            const player = document.getElementById('spotify-player');
+            if(player) { 
+                document.getElementById('player-container').classList.add('shimmer');
+                let finalUrl = url;
+                if(url.includes("open.spotify.com") && !url.includes("/embed")) {
+                    finalUrl = url.replace("open.spotify.com", "open.spotify.com/embed");
+                }
+                player.src = finalUrl; 
             }
         }
 
-        function createTaskElement(text, color, target, id = null) {
-    const taskId = id || 't-' + Date.now();
-    const el = document.createElement('div');
-    el.id = taskId; 
-    el.draggable = true;
-    el.className = `task-item text-black flex justify-between items-center group`; // Tambah class group untuk efek hover nanti
-    el.style.backgroundColor = color;
-    el.setAttribute('data-task-text', text);
-    
-    el.ondragstart = (e) => { e.stopPropagation(); e.dataTransfer.setData("text", taskId); };
-    el.onclick = (e) => e.stopPropagation();
-    
-    el.innerHTML = `
-        <span class="truncate font-bold pr-1">${text}</span>
-        <div class="flex gap-1 shrink-0">
-            <button onclick="markDone(event, '${taskId}')" class="action-btn bg-white/20 hover:bg-white/40">✔</button>
-            <button onclick="deleteTaskById(event, '${taskId}')" class="action-btn bg-white/20 hover:bg-red-500 hover:text-white">✕</button>
-        </div>`;
-    target.appendChild(el);
-}
-
-        async function saveModalTask() {
-            const taskInput = document.getElementById('modalTaskInput');
-            const task = taskInput.value;
-            if(!task) return; 
-            if(!currColor) { showModalAlert(); return; }
-            const dateStr = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${selectedDayForModal}`;
-            const targetZone = document.querySelector(`.date-cell[data-day="${selectedDayForModal}"] .task-zone`);
-            const newId = 't-' + Date.now();
-            createTaskElement(task, currColor, targetZone, newId);
-            fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: "add", id: newId, task: task, date: dateStr, color: currColor }) });
-            taskInput.value = '';
-            closeInputModal();
-        }
-
-        function selectColor(color, el) { 
-            currColor = color; 
-            document.querySelectorAll('.color-dot').forEach(dot => dot.classList.remove('selected')); 
-            el.classList.add('selected'); 
-        }
-
+        function removeShimmer() { document.getElementById('player-container')?.classList.remove('shimmer'); }
+        function changeSpotify() { const url = document.getElementById('spotifyUrlInput').value; if(url.includes("http")) setSpotifyPlayer(url); }
         function showSuggestions() { document.getElementById('spotify-suggestions').style.display = 'block'; }
         function hideSuggestions() { setTimeout(() => { document.getElementById('spotify-suggestions').style.display = 'none'; }, 200); }
-        
-        function openInputModal(day) { 
-            selectedDayForModal = day; 
-            document.querySelectorAll('#inputModal .color-dot').forEach(dot => dot.classList.remove('selected'));
-            document.getElementById('inputModal').style.display = 'flex'; 
-            
-            // PERBAIKAN: Autofocus pada input saat modal dibuka
-            setTimeout(() => {
-                document.getElementById('modalTaskInput').focus();
-            }, 100); 
+
+        function createTaskElement(text, color, target, id = null) {
+            const taskId = id || 't-' + Date.now();
+            const el = document.createElement('div');
+            el.id = taskId; el.draggable = true;
+            el.className = `task-item`; el.style.backgroundColor = color;
+            el.setAttribute('data-task-text', text);
+            el.ondragstart = (e) => e.dataTransfer.setData("text", taskId);
+            el.innerHTML = `
+                <span class="truncate">${text}</span>
+                <div class="flex gap-1 shrink-0">
+                    <button onclick="markDone(event, '${taskId}')" class="action-btn">✔</button>
+                    <button onclick="deleteTaskById(event, '${taskId}')" class="action-btn btn-delete-task">✕</button>
+                </div>`;
+            target.appendChild(el);
+            target.scrollTop = target.scrollHeight;
         }
 
-        function closeInputModal() { document.getElementById('inputModal').style.display = 'none'; }
-        function showModalAlert() { document.getElementById('alertModal').style.display = 'flex'; }
-        function closeAlert() { document.getElementById('alertModal').style.display = 'none'; }
-        function changeSpotify() { const url = document.getElementById('spotifyUrlInput').value; if(url.includes("http")) setSpotifyPlayer(url); }
-        
         function createTask() {
             const v = document.getElementById('taskInput').value;
-            if(!v) return; 
-            if(!currColor) { showModalAlert(); return; }
+            if(!v) return; if(!currColor) { showModalAlert(); return; }
             createTaskElement(v, currColor, document.getElementById('inventory'));
             document.getElementById('taskInput').value = '';
         }
 
-        async function deleteTaskById(e, id) { if(e) e.stopPropagation(); document.getElementById(id)?.remove(); fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: "delete", id: id }) }); }
-        async function markDone(e, id) { if(e) e.stopPropagation(); const el = document.getElementById(id); if(el) { el.style.opacity = "0.3"; el.style.textDecoration = "line-through"; } fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: "updateStatus", id: id, status: "Done" }) }); }
-        function allowDrop(e) { e.preventDefault(); }
-        function deleteTask(e) { e.preventDefault(); const id = e.dataTransfer.getData("text"); if(id) deleteTaskById(null, id); }
+        async function saveModalTask() {
+            const input = document.getElementById('modalTaskInput');
+            if(!input.value) return; if(!currColor) { showModalAlert(); return; }
+            const zone = document.querySelector(`.date-cell[data-day="${selectedDayForModal}"] .task-zone`);
+            const newId = 't-' + Date.now();
+            createTaskElement(input.value, currColor, zone, newId);
+            fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: "add", id: newId, task: input.value, date: `${currentDate.getFullYear()}-${currentDate.getMonth()+1}-${selectedDayForModal}`, color: currColor })});
+            input.value = ''; closeInputModal();
+        }
 
-        async function drop(e) {
+        async function deleteTaskById(e, id) { if(e) e.stopPropagation(); document.getElementById(id)?.remove(); fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: "delete", id: id }) }); }
+        
+        async function markDone(e, id) { 
+            if(e) e.stopPropagation(); 
+            const el = document.getElementById(id); 
+            if(el) { 
+                el.style.opacity = "0";
+                el.style.transform = "scale(0.5)";
+                setTimeout(() => el.remove(), 300);
+            } 
+            fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: "updateStatus", id: id, status: "Done" }) }); 
+        }
+        
+        function drop(e) {
             e.preventDefault();
             const id = e.dataTransfer.getData("text");
-            const dateCell = e.target.closest('.date-cell');
-            if (dateCell && id) {
+            const targetCell = e.target.closest('.date-cell') || e.target.closest('#inventory');
+            if (targetCell && id) {
                 const el = document.getElementById(id);
                 const text = el.getAttribute('data-task-text');
                 const color = el.style.backgroundColor;
-                await deleteTaskById(null, id);
+                const zone = targetCell.querySelector('.task-zone') || targetCell;
+                deleteTaskById(null, id);
                 const newId = 't-' + Date.now();
-                createTaskElement(text, color, dateCell.querySelector('.task-zone'), newId);
-                fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: "add", id: newId, task: text, date: `${currentDate.getFullYear()}-${currentDate.getMonth()+1}-${dateCell.dataset.day}`, color: color }) });
+                createTaskElement(text, color, zone, newId);
+                if (targetCell.dataset.day) {
+                    fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: "add", id: newId, task: text, date: `${currentDate.getFullYear()}-${currentDate.getMonth()+1}-${targetCell.dataset.day}`, color: color })});
+                }
             }
         }
+
+        function allowDrop(e) { e.preventDefault(); }
+        function deleteTask(e) { 
+            e.preventDefault(); 
+            const id = e.dataTransfer.getData("text"); 
+            document.getElementById('trash').classList.remove('drag-over');
+            if(id) deleteTaskById(null, id); 
+        }
+
+        // REQ: Scroll Desktop Penyesuaian (Scroll Task vs Scroll Bulan)
+        document.getElementById('main-calendar-area').addEventListener('wheel', (e) => {
+            if (window.innerWidth >= 768) {
+                // Cari apakah kursor ada di dalam zona task
+                const taskZone = e.target.closest('.task-zone');
+                
+                if (taskZone) {
+                    // Cek apakah jumlah task di zona tersebut 3 atau lebih 
+                    // (Atau cek jika kontennya memang lebih tinggi dari container agar scrollable)
+                    const hasManyTasks = taskZone.children.length >= 3;
+                    const isScrollable = taskZone.scrollHeight > taskZone.clientHeight;
+
+                    if (hasManyTasks && isScrollable) {
+                        // Jika ada di area task yang penuh, biarkan scroll internal bekerja
+                        // Jangan cegah default (e.preventDefault) agar div bisa scroll
+                        return; 
+                    }
+                }
+
+                // Jika di area kosong atau task sedikit, ganti bulan
+                e.preventDefault();
+                if (e.deltaY > 0) {
+                    currentDate.setMonth(currentDate.getMonth() + 1);
+                } else {
+                    currentDate.setMonth(currentDate.getMonth() - 1);
+                }
+                initCalendar();
+            }
+        }, { passive: false });
+
+        function selectColor(color, el) { currColor = color; document.querySelectorAll('.color-dot').forEach(dot => dot.classList.remove('selected')); el.classList.add('selected'); }
+        function openInputModal(d) { selectedDayForModal = d; document.getElementById('inputModal').style.display = 'flex'; setTimeout(()=>document.getElementById('modalTaskInput').focus(), 100); }
+        function closeInputModal() { document.getElementById('inputModal').style.display = 'none'; }
+        function showModalAlert() { document.getElementById('alertModal').style.display = 'flex'; }
+        function closeAlert() { document.getElementById('alertModal').style.display = 'none'; }
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === "Escape") { closeInputModal(); closeAlert(); }
+            if (e.key === "Enter" && document.getElementById('inputModal').style.display === 'flex') saveModalTask();
+        });
 
         function updateTime() {
             const now = new Date();
@@ -358,9 +342,13 @@
             document.getElementById('digital-date').innerText = now.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long'}).toUpperCase();
         }
 
-        document.addEventListener('keydown', (e) => {
-            if (document.getElementById('alertModal').style.display === 'flex') {
-                if (e.key === 'Escape' || e.key === 'Enter') closeAlert();
+        let touchStartX = 0;
+        document.getElementById('main-calendar-area').addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
+        document.getElementById('main-calendar-area').addEventListener('touchend', e => {
+            const touchEndX = e.changedTouches[0].screenX;
+            if (Math.abs(touchStartX - touchEndX) > 70) {
+                currentDate.setMonth(currentDate.getMonth() + (touchStartX - touchEndX > 0 ? 1 : -1));
+                initCalendar();
             }
         });
 
